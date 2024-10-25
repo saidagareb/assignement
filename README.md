@@ -27,5 +27,5 @@ http://localhost:8081/swagger-ui/index.html
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/your-repo.git
+git clone https://github.com/saidagareb/assignement.git
 cd your-repo
