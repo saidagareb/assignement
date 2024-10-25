@@ -31,19 +31,17 @@ public class BankService {
         this.customerRepository = customerRepository;
     }
 
+    /*
+             First requirement: Creation of new account
+    */
     @Transactional
     public ResponseEntity<BankAccount> createAccount(Long customerId, BigDecimal initialDeposit) {
-/*
-  First requirement: Creation of new account
-    */
 
         if (initialDeposit.compareTo(BigDecimal.ZERO) < 0) {
 
             throw new InsufficientFundsException();// Exception in case value < 0
         }
 
-
-        List<Customer> all = customerRepository.findAll();
         Optional<Customer> customer = customerRepository.findById(customerId);
         if (!customer.isPresent()) {
             throw new CustomerNotFoundException("Customer not found");
