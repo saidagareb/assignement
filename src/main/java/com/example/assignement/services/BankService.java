@@ -4,6 +4,7 @@ import com.example.assignement.domains.BankAccount;
 import com.example.assignement.domains.Customer;
 import com.example.assignement.domains.TransferHistory;
 import com.example.assignement.exceptions.AccountNotFoundException;
+import com.example.assignement.exceptions.CustomerNotFoundException;
 import com.example.assignement.exceptions.InsufficientFundsException;
 import com.example.assignement.repositories.BankAccountRepository;
 import com.example.assignement.repositories.CustomerRepository;
@@ -19,11 +20,16 @@ import java.util.Optional;
 @Service
 public class BankService {
 
-    @Autowired
+    //    @Autowired
     private CustomerRepository customerRepository;
 
     @Autowired
     private BankAccountRepository bankAccountRepository;
+
+    public BankService(BankAccountRepository bankAccountRepository, CustomerRepository customerRepository) {
+        this.bankAccountRepository = bankAccountRepository;
+        this.customerRepository = customerRepository;
+    }
 
     @Transactional
     public ResponseEntity<BankAccount> createAccount(Long customerId, BigDecimal initialDeposit) {
@@ -36,9 +42,11 @@ public class BankService {
             throw new InsufficientFundsException();// Exception in case value < 0
         }
 
+
+        List<Customer> all = customerRepository.findAll();
         Optional<Customer> customer = customerRepository.findById(customerId);
         if (!customer.isPresent()) {
-            throw new AccountNotFoundException("Customer not found");
+            throw new CustomerNotFoundException("Customer not found");
 
         } else {
 
@@ -52,7 +60,6 @@ public class BankService {
             return ResponseEntity.ok(savedAccount);
         }
 
-
     }
 
     /*
@@ -62,11 +69,9 @@ public class BankService {
     @Transactional
     public void transferAmount(Long fromAccountId, Long toAccountId, BigDecimal amount) {
 
-        BankAccount fromAccount = bankAccountRepository.findById(fromAccountId)
-                .orElseThrow(() -> new AccountNotFoundException("Customer not found" + fromAccountId));
+        BankAccount fromAccount = bankAccountRepository.findById(fromAccountId).orElseThrow(() -> new AccountNotFoundException("Customer not found" + fromAccountId));
 
-        BankAccount toAccount = bankAccountRepository.findById(toAccountId)
-                .orElseThrow(() -> new AccountNotFoundException("Customer not found" + toAccountId));
+        BankAccount toAccount = bankAccountRepository.findById(toAccountId).orElseThrow(() -> new AccountNotFoundException("Customer not found" + toAccountId));
 
         if (fromAccount.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException();
@@ -91,8 +96,7 @@ public class BankService {
            */
     public BigDecimal getBalanceByAccount(Long accountId) {
 
-        BankAccount account = bankAccountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountNotFoundException("Account not found" + accountId));
+        BankAccount account = bankAccountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundException("Account not found" + accountId));
 
         return account.getBalance();
     }
